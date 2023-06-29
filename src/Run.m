@@ -4,27 +4,40 @@ clear all
 close all
 clc
 
-%% Parameter
-tSTART = 0;                       % initial time
-tMAX   = 15;                      % maximum simulation time
-dt = 0.001;                       % size of the time step
-t_out    = tSTART:dt:tMAX;
-disp(t_out)
-
 % Initial state
-q0 = [0;0;0];
+q0 = [0;0;0;0;0;0];
+q0 = [0;0;0;0];
 
-% Increment
-delta = [0;0;0;0.1;0.1;0];
+% Params
+R = 1;
+dt = 0.05;
+tSTART = 0;
+tMAX = 60;
 
 %% Set up model:
-model = Mdl_DifferentialDriveCLASS();
+model = Mdl_TractorTrailerCLASS();
+model = Mdl_BicycleCLASS();
+
+%% Set up trajectory:
+trajectory = Ref_EightCurveCLASS(model);
+trajectory.tMAX   = tMAX;                      % maximum simulation time
+trajectory.dt = dt; 
+trajectory.R = R; 
+trajectory = trajectory.Generate();
 
 %% Set up controller:
 controller = Ctrl_FeedForwardCLASS(model);
 
-%% Run simulation
-simulation.Run(q0, delta);
+%% Set up simultion: 
+simulation = TimeSteppingCLASS(model,trajectory, controller);
+simulation.tSTART = tSTART;                       % initial time
+simulation.tMAX   = tMAX;                      % maximum simulation time
+simulation.dt = dt; 
 
-%% Show animation
-% animation.Animate();
+%% Run simulation
+simulation = simulation.Run(q0);
+
+%% Set up animation:
+animation = AnimationCLASS(model, trajectory, controller, simulation);
+animation.Animate();
+

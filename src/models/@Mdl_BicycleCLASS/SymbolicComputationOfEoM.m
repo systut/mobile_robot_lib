@@ -1,11 +1,11 @@
 function SymbolicComputationOfEoM()
     %SYMBOLICCOMPUTATIONOFEOM Summary of this function goes here
     %   Detailed explanation goes here
-    syms slip_right slip_left wheel_distance dt
+    syms length_base dt
 
-    p = [slip_right, slip_left, wheel_distance];
+    p = [length_base];
 
-    nx = 3;
+    nx = 4;
 
     nu = 2;
     
@@ -21,13 +21,10 @@ function SymbolicComputationOfEoM()
     % [v_r, v_l]
     input = sym('u',[nu,1]);
 
-    v = ((1 - slip_right) * u(1) + (1 - slip_left) * u(2))/2;
-
-    w = ((1 - slip_right) * u(1) - (1 - slip_left) * u(2))/(2 * wheel_distance);
-
-    dfdt = [cos(x(3)) * v;
-             sin(x(3)) * v;
-             w];
+    dfdt = [u(1)*cos(x(3));                  % v * cos(theta)
+            u(1)*sin(x(3));                  % v * sin(theta)
+            u(1)*tan(x(4))/length_base;      % v * tan(delta) / L
+            u(2)];                           % delta dot
 
     f = state + subs(dfdt,[x;u],[state;input]) * dt;
 

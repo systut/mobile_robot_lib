@@ -1,4 +1,4 @@
-classdef Sim_TimSteppingCLASS < handle
+classdef TimeSteppingCLASS
     %TIMESTEPPINGCLASS Summary of this class goes here
     %   Detailed explanation goes here
 
@@ -6,42 +6,51 @@ classdef Sim_TimSteppingCLASS < handle
     properties (SetAccess = public, GetAccess = public)
         % Parameters
         tSTART = 0;
-        tMAX   = 1000;
-        dt     = 0.001;
+        tMAX   = 60;
+        dt     = 0.05;
         % Output:
         t_out    = [];
-        q_out    = [];
-        dqdt_out = [];
+        x_out    = [];
+        dxdt_out = [];
+        u_out  = [];
     end
     
     % Private Properties
     properties (SetAccess = private, GetAccess = private)
         model;        % A model object
         controller;
+        trajectory;
     end
 
     methods
-        function obj = Sim_TimSteppingCLASS(model,controller)
+        function obj = TimeSteppingCLASS(model, trajectory, controller)
             % Constructor creates a simulation for a specific model
             obj.model      = model;
             obj.controller = controller;
+            obj.trajectory = trajectory;
         end
         
-        function Run(obj, q0)
+        function obj = Run(obj, q0)
             obj.t_out    = obj.tSTART:obj.dt:obj.tMAX;
             nt = size(obj.t_out,2);
-            obj.q_out    = zeros(obj.model.nq,nt);
-            obj.dqdt_out = zeros(obj.model.nq,nt);
-    
+            obj.x_out    = zeros(obj.model.nx,nt);
+            
             % Initialize time stepping:
-            obj.q_out(:,1)    = q0;
-            obj.dqdt_out(:,1) = dqdt0;
+            obj.x_out(:,1)    = q0;
 
-            obj.u = zeros(obj.model.nq,nt);
+            obj.u_out = zeros(2,nt);
+
             for i = 2:size(obj.t_out,2)
+                xM = obj.trajectory.x(:, i-1);
+                uM = obj.trajectory.u(:, i-1);
+
                 % Controller
-                obj.tau_out(:,i) = obj.controller.Loop(t_out[i]);
+                obj.u_out(:,i) = obj.controller.Loop(xM, uM);
+
+                % Update model
+                qM = obj.model.Function(obj.x_out(:, i-1), obj.u_out(:,i), obj.dt, obj.model.p);
                 
+                obj.x_out(:, i) = qM;
             end
         end
     end

@@ -1,11 +1,11 @@
 function SymbolicComputationOfEoM()
     %SYMBOLICCOMPUTATIONOFEOM Summary of this function goes here
     %   Detailed explanation goes here
-    syms slip_right slip_left wheel_distance dt
+    syms length_front length_back slip_right slip_left wheel_distance dt
 
-    p = [slip_right, slip_left, wheel_distance];
+    p = [length_front, length_back, slip_right, slip_left, wheel_distance];
 
-    nx = 3;
+    nx = 6;
 
     nu = 2;
     
@@ -24,11 +24,16 @@ function SymbolicComputationOfEoM()
     v = ((1 - slip_right) * u(1) + (1 - slip_left) * u(2))/2;
 
     w = ((1 - slip_right) * u(1) - (1 - slip_left) * u(2))/(2 * wheel_distance);
+        
+    delta = x(6) - x(3);
 
     dfdt = [cos(x(3)) * v;
-             sin(x(3)) * v;
-             w];
-
+            sin(x(3)) * v;
+            w; 
+            v * cos(x(6)) * cos(delta) + w * length_back * cos(x(6)) * sin(delta);
+            v * sin(x(6)) * cos(delta) + w * length_back * sin(x(6)) * sin(delta);
+          - v * (1/length_front) * sin(delta) - w * (length_back/length_front) * cos(delta)];
+    
     f = state + subs(dfdt,[x;u],[state;input]) * dt;
 
     A_linearized   = subs(jacobian(dfdt, x),[x; u],[state;input]);
