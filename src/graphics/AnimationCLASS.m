@@ -7,6 +7,7 @@ classdef AnimationCLASS
         % Constants  
         grey = [0.2431,    0.2667,    0.2980];
         green = [0.0000, 0.6902, 0.3137];
+        red = [0.6902, 0, 0.3137];
         blue = [0.0000, 0.3176, 0.6196];
     end
     
@@ -42,6 +43,8 @@ classdef AnimationCLASS
             % Bring window to front:
             figure(obj.fig);
             plot(obj.trajectory.x(1,:), obj.trajectory.x(2,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on, hold on,
+
+            plot(obj.simulation.y_out(1,:), obj.simulation.y_out(2,:), '--', 'Color', obj.red, 'linewidth', 1.5), grid on, hold on,
             
             plot(obj.simulation.x_out(1,:), obj.simulation.x_out(2,:), '--', 'Color', obj.green, 'linewidth', 1.5)
 

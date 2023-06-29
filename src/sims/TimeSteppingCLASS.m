@@ -11,6 +11,7 @@ classdef TimeSteppingCLASS
         % Output:
         t_out    = [];
         x_out    = [];
+        y_out    = [];
         dxdt_out = [];
         u_out  = [];
     end
@@ -20,37 +21,49 @@ classdef TimeSteppingCLASS
         model;        % A model object
         controller;
         trajectory;
+        observer;
     end
 
     methods
-        function obj = TimeSteppingCLASS(model, trajectory, controller)
+        function obj = TimeSteppingCLASS(model, trajectory, controller, observer)
             % Constructor creates a simulation for a specific model
             obj.model      = model;
             obj.controller = controller;
             obj.trajectory = trajectory;
+            obj.observer   = observer;
         end
         
         function obj = Run(obj, q0)
             obj.t_out    = obj.tSTART:obj.dt:obj.tMAX;
-            nt = size(obj.t_out,2);
+            nt           = size(obj.t_out,2);
             obj.x_out    = zeros(obj.model.nx,nt);
             
             % Initialize time stepping:
             obj.x_out(:,1)    = q0;
+            obj.y_out(:,1)    = q0;
 
             obj.u_out = zeros(2,nt);
-
+                
+            obj.controller = obj.controller.Init();
+            
             for i = 2:size(obj.t_out,2)
-                xM = obj.trajectory.x(:, i-1);
-                uM = obj.trajectory.u(:, i-1);
+                yM = obj.y_out(:, i-1);
 
                 % Controller
-                obj.u_out(:,i) = obj.controller.Loop(xM, uM);
+                [status, obj.u_out(:,i-1), obj.controller] = obj.controller.Loop(obj.trajectory.x, obj.trajectory.u, yM, i);
+                
+                if ~status
+                    break
+                end
 
                 % Update model
-                qM = obj.model.Function(obj.x_out(:, i-1), obj.u_out(:,i), obj.dt, obj.model.p);
+                xM = obj.model.Function(obj.x_out(:, i-1), obj.u_out(:,i-1), obj.dt, obj.model.p);
                 
-                obj.x_out(:, i) = qM;
+                % Add observer
+                yM = obj.observer.Observe(xM);
+
+                obj.x_out(:, i) = xM;
+                obj.y_out(:, i) = yM;
             end
         end
     end

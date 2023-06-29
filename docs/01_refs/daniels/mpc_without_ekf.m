@@ -106,6 +106,7 @@ clear('k')
 Qstack = blkdiag(Qstack, zeros(n));
 
 H = blkdiag(Qstack, Rstack);
+
 f = zeros(1, n*(N+1)+m*N);
 
 
@@ -213,6 +214,7 @@ for ii = 1:MPCIterations
     % Solve optimization problem
     % Initial value for decision variable
     z0 = [state0; input0];
+
     [solutionOL,~,exit_flag,~] = quadprog(H, f, Ai, bi, Aeq, beq, [], [], z0, options);
     
     if exit_flag ~= 1
@@ -281,8 +283,8 @@ ylabel('position $y$ in $\mathrm{m}$', 'interpreter', 'latex');
 legend('reference', 'measurement', 'real state', 'interpreter', 'latex', 'orientation','vertical',...
                                             'location','southeast');
 
-cleanfigure('targetResolution', 300)
-matlab2tikz('figures/position_wout_ekf.tex','width','\fwidth', 'encoding', 'utf8')
+% cleanfigure('targetResolution', 300)
+% matlab2tikz('figures/position_wout_ekf.tex','width','\fwidth', 'encoding', 'utf8')
 
 
 % Error in the position
@@ -300,8 +302,8 @@ ax.TickLabelInterpreter = 'latex';
 xlabel('time $t$ in $\mathrm{s}$', 'interpreter', 'latex');
 ylabel('error in position in $\mathrm{m}$', 'interpreter', 'latex');
 
-cleanfigure('targetResolution', 300)
-matlab2tikz('figures/error_pos_wout_ekf.tex','width','\fwidth', 'encoding', 'utf8')
+% cleanfigure('targetResolution', 300)
+% matlab2tikz('figures/error_pos_wout_ekf.tex','width','\fwidth', 'encoding', 'utf8')
 
 
 % Error in the orientation
@@ -314,8 +316,8 @@ ax.TickLabelInterpreter = 'latex';
 xlabel('time $t$ in $\mathrm{s}$', 'interpreter', 'latex');
 ylabel('error in orientation in $\mathrm{rad}$', 'interpreter', 'latex');
 
-cleanfigure('targetResolution', 300)
-matlab2tikz('figures/error_theta_wout_ekf.tex','width','\fwidth', 'encoding', 'utf8')
+% cleanfigure('targetResolution', 300)
+% matlab2tikz('figures/error_theta_wout_ekf.tex','width','\fwidth', 'encoding', 'utf8')
 
 
 % Input for the right wheel
@@ -328,8 +330,8 @@ ax.TickLabelInterpreter = 'latex';
 xlabel('time $t$ in $\mathrm{s}$', 'interpreter', 'latex');
 ylabel('wheel velocity $v_r$ in $\mathrm{ms^{-1}}$', 'interpreter', 'latex');
 
-cleanfigure('targetResolution', 300)
-matlab2tikz('figures/input_right_wout_ekf.tex','width','\fwidth', 'encoding', 'utf8')
+% cleanfigure('targetResolution', 300)
+% matlab2tikz('figures/input_right_wout_ekf.tex','width','\fwidth', 'encoding', 'utf8')
 
 % Input for the left wheel
 f5 = figure(5);
@@ -341,8 +343,8 @@ ax.TickLabelInterpreter = 'latex';
 xlabel('time $t$ in $\mathrm{s}$', 'interpreter', 'latex');
 ylabel('wheel velocity $v_l$ in $\mathrm{ms^{-1}}$', 'interpreter', 'latex');
 
-cleanfigure('targetResolution', 300)
-matlab2tikz('figures/input_left_wout_ekf.tex','width','\fwidth', 'encoding', 'utf8')
+% cleanfigure('targetResolution', 300)
+% matlab2tikz('figures/input_left_wout_ekf.tex','width','\fwidth', 'encoding', 'utf8')
 
 
 % csvwrite(['state_input_for_slip_', num2str(s_l), '.csv'], [state', input'])

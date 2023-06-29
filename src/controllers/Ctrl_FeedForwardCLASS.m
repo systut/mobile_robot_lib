@@ -13,11 +13,15 @@ classdef Ctrl_FeedForwardCLASS
             obj.model = model;
         end
         
-        function u = Loop(obj, reference_state, reference_input)
+        function Init(obj)
+        end
+
+        function [status, u] = Loop(obj, reference_x, reference_u, y, index)
             %METHOD1 Summary of this method goes here
             %   Detailed explanation goes here
-
-            u = reference_input;
+            status = true;
+       
+            u = reference_u(:, index-1);
         end
     end
 end

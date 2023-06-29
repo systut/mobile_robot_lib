@@ -32,34 +32,34 @@ classdef Ref_EightCurveCLASS
             w = (2*pi) / obj.tMAX;
             
             % Lemniscate of gerono, adapted so that one period takes 60s
-            obj.x = [obj.R * sin(2*w*t) / 2; obj.R * (cos(w*t)-1)];
+            obj.x = [obj.R * sin(2*w*t) / 2; obj.R * (cos(w*t)-1); atan2(-obj.R * w * sin(w*t), obj.R * w * cos(2*w*t))];
         
             % First derivative of adapted lemniscate of gerono
             obj.dxdt = [obj.R * w * cos(2*w*t); -obj.R * w * sin(w*t)];
-        
+            
             % Second derivative of adapted lemniscate of gerono
             obj.ddxddt = [-2 * obj.R * w * w * sin(2*w*t); -obj.R * w * w * cos(w*t)];
 
-            if isa(obj.model,'Mdl_BicycleCLASS')
+            if isa(obj.model, 'Mdl_BicycleCLASS')
                 v = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
 
                 delta = atan(obj.model.length_base * (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (v.^3));
 
                 ddeltadt = zeros(1, length(t));
 
-                for i = 1:length(t)-1
-                    ddeltadt(1, i) = (delta(1, i+1) - delta(1, i)) / obj.dt; 
+                for index = 1:length(t)-1
+                    ddeltadt(1, index) = (delta(1, index+1) - delta(1, index)) / obj.dt; 
                 end
 
-                obj.u = [v, ddeltadt]; 
+                obj.u = [v; ddeltadt]; 
 
             else
                 dthetadt = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
 
                 v_r = obj.model.distance * dthetadt + sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
                 v_l = -obj.model.distance * dthetadt + sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
-    
-                obj.u = [v_r, v_l];
+
+                obj.u = [v_r; v_l];
             end
         end
     end

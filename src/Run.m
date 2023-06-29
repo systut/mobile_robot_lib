@@ -4,9 +4,6 @@ clear all
 close all
 clc
 
-% Initial state
-q0 = [0;0;0;0;0;0];
-q0 = [0;0;0;0];
 
 % Params
 R = 1;
@@ -15,8 +12,11 @@ tSTART = 0;
 tMAX = 60;
 
 %% Set up model:
-model = Mdl_TractorTrailerCLASS();
-model = Mdl_BicycleCLASS();
+model = Mdl_DifferentialDriveCLASS();
+
+%% Initial state
+q0 = zeros(model.nx, 1);
+q0 = [0;0.1;0];
 
 %% Set up trajectory:
 trajectory = Ref_EightCurveCLASS(model);
@@ -27,9 +27,14 @@ trajectory = trajectory.Generate();
 
 %% Set up controller:
 controller = Ctrl_FeedForwardCLASS(model);
+controller = Ctrl_MPControlCLASS(model, trajectory);
+
+%% Set up observer; 
+observer = Obs_NormalCLASS(model);
+observer.noise_sigma =  diag([1, 1, 2])*1e-3;
 
 %% Set up simultion: 
-simulation = TimeSteppingCLASS(model,trajectory, controller);
+simulation = TimeSteppingCLASS(model, trajectory, controller, observer);
 simulation.tSTART = tSTART;                       % initial time
 simulation.tMAX   = tMAX;                      % maximum simulation time
 simulation.dt = dt; 

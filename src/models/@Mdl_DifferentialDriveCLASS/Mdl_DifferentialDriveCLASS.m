@@ -10,14 +10,16 @@ classdef Mdl_DifferentialDriveCLASS
         nu;
         
         % Parameters
-        slip_right = 0;
+        slip_right = 0.5;
 
-        slip_left = 0;
+        slip_left = 0.5;
 
         distance = 0.53/2; 
 
         % Parameter vector
         p;          
+
+        p_without_slip;
     end
     
     methods
@@ -29,6 +31,8 @@ classdef Mdl_DifferentialDriveCLASS
             obj.nu = 2;
 
             obj.p = [obj.slip_right, obj.slip_left, obj.distance];
+
+            obj.p_without_slip = [0, 0, obj.distance];
         end
         A       = SystemMatrix(obj, state, input, dt, p);
         B       = ControlMatrix(obj, state, input, dt, p);
