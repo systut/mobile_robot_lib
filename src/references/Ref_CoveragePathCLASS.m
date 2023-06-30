@@ -35,7 +35,7 @@ classdef Ref_CoveragePathCLASS
             obj.dxdt = [];
             obj.ddxddt = [];
 
-            for index=1:length(t)/3 + 1
+            for index=1:length(t)/3
                 [x_, dxdt_, ddxddt_] = obj.GenerateStraightLine(v, [0;0;0], t(index));
 
                 obj.x = [obj.x, x_];
@@ -45,7 +45,7 @@ classdef Ref_CoveragePathCLASS
                 obj.ddxddt = [obj.ddxddt, ddxddt_];
             end
                     
-            for index=1:length(t)/3 + 1
+            for index=1:length(t)/3
                 [x_, dxdt_, ddxddt_] = obj.GenerateClockwiseHalfCircle([v*length(t)*obj.dt/3; 0; 0], obj.R, t(index));
 
                 obj.x = [obj.x, x_];
@@ -56,7 +56,7 @@ classdef Ref_CoveragePathCLASS
             end
 
 
-            for index=1:length(t)/3 + 1
+            for index=1:length(t)/3
                 [x_, dxdt_, ddxddt_] = obj.GenerateStraightLine(-v,[v*length(t)*obj.dt/3; 2*obj.R; -pi/2],t(index));
 
                 obj.x = [obj.x, x_];
@@ -101,7 +101,7 @@ classdef Ref_CoveragePathCLASS
         end
 
         function [x, dxdt, ddxddt] = GenerateClockwiseHalfCircle(x0, R, t)
-            x      = [x0(1); R; x0(3)] + [-R*cos(pi/2 + pi/R*t); -R*sin(pi/2 + pi/R*t); -pi/R*t];
+            x      = [x0(1); R; x0(3)] + [-R*cos(pi/2 + pi/R*t); -R*sin(pi/2 + pi/R*t); pi/R*t];
 
             dxdt   = [R * (pi/R) * sin(pi/2 + pi/R*t)        ; -R * (pi/R) * cos(pi/2 + pi/R*t)];
 

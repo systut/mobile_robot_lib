@@ -4,9 +4,9 @@ classdef Mdl_TractorTrailerCLASS
     
     properties
         % Parameters of the model
-        length_front = 0.05;
+        length_front = 0.01;
 
-        length_back = 0.05;
+        length_back = 0.01;
 
         distance = 0.53/2;
 

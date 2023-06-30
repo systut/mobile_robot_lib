@@ -47,6 +47,10 @@ classdef AnimationCLASS
             plot(obj.simulation.y_out(1,:), obj.simulation.y_out(2,:), '--', 'Color', obj.red, 'linewidth', 1.5), grid on, hold on,
             
             plot(obj.simulation.x_out(1,:), obj.simulation.x_out(2,:), '--', 'Color', obj.green, 'linewidth', 1.5)
+            
+            eps = 10;
+
+            quiver(obj.trajectory.x(1,:), obj.trajectory.x(2,:), obj.trajectory.x(1,:) + eps * cos(obj.trajectory.x(3,:)), obj.trajectory.x(2,:) + eps * sin(obj.trajectory.x(3,:)),'-','filled')
 
             if isa(obj.model,'Mdl_TractorTrailerCLASS')
                 plot(obj.simulation.x_out(4,:), obj.simulation.x_out(5,:), '-', 'Color', obj.blue, 'linewidth', 1.5)
