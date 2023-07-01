@@ -1,4 +1,4 @@
-classdef Ref_EightCurveCLASS
+classdef Ref_HalfCircleCLASS
     properties
         % Params
         R; 
@@ -19,7 +19,7 @@ classdef Ref_EightCurveCLASS
     
     
     methods
-        function obj = Ref_EightCurveCLASS(model)
+        function obj = Ref_HalfCircleCLASS(model)
             %CTRL_BASECLASS Construct an instance of this class
             %   Detailed explanation goes here
             obj.model = model;
@@ -31,14 +31,19 @@ classdef Ref_EightCurveCLASS
             t = linspace(0, obj.tMAX, (1/obj.dt) * obj.tMAX); % should take 60s to complete with 20 Hz sampling rate
             w = (2*pi) / obj.tMAX;
             
-            % Lemniscate of gerono, adapted so that one period takes 60s
-            obj.x = [obj.R * sin(2*w*t) / 2; obj.R * (cos(w*t)-1); atan2(-obj.R * w * sin(w*t), obj.R * w * cos(2*w*t))];
-        
-            % First derivative of adapted lemniscate of gerono
-            obj.dxdt = [obj.R * w * cos(2*w*t); -obj.R * w * sin(w*t)];
-            
-            % Second derivative of adapted lemniscate of gerono
-            obj.ddxddt = [-2 * obj.R * w * w * sin(2*w*t); -obj.R * w * w * cos(w*t)];
+            obj.x = [];
+            obj.dxdt = [];
+            obj.ddxddt = [];
+
+            for index=1:length(t)
+                [x_, dxdt_, ddxddt_] = obj.GenerateClockwiseHalfCircle([0; 0; 0], obj.R, t(index));
+
+                obj.x = [obj.x, x_];
+
+                obj.dxdt = [obj.dxdt, dxdt_];
+
+                obj.ddxddt = [obj.ddxddt, ddxddt_];
+            end
 
             if isa(obj.model, 'Mdl_BicycleCLASS')
                 v = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
@@ -47,8 +52,8 @@ classdef Ref_EightCurveCLASS
 
                 ddeltadt = zeros(1, length(t));
 
-                for index = 2:length(t)
-                    ddeltadt(1, index) = (delta(1, index) - delta(1, index-1)) / obj.dt; 
+                for index = 1:length(t)-1
+                    ddeltadt(1, index) = (delta(1, index+1) - delta(1, index)) / obj.dt; 
                 end
 
                 obj.u = [v; ddeltadt]; 
@@ -62,6 +67,18 @@ classdef Ref_EightCurveCLASS
                 obj.u = [v_r; v_l];
             end
         end
+    end
+
+    methods(Static)
+
+        function [x, dxdt, ddxddt] = GenerateClockwiseHalfCircle(x0, R, t)
+            x      = [x0(1); R; x0(3)] + [-R*cos(pi/2 + pi/R*t); -R*sin(pi/2 + pi/R*t); pi/R*t];
+
+            dxdt   = [R * (pi/R) * sin(pi/2 + pi/R*t)        ; -R * (pi/R) * cos(pi/2 + pi/R*t)];
+
+            ddxddt = [R * (pi/R) * (pi/R) * cos(pi/2 + pi/R*t); R * (pi/R) * (pi/R) * sin(pi/2 + pi/R*t)];
+        end
+      
     end
 end
 

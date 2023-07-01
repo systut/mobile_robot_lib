@@ -37,7 +37,8 @@ classdef TimeSteppingCLASS
             obj.t_out    = obj.tSTART:obj.dt:obj.tMAX;
             nt           = size(obj.t_out,2);
             obj.x_out    = zeros(obj.model.nx,nt);
-            
+            obj.y_out    = zeros(obj.model.nx,nt);
+
             % Initialize time stepping:
             obj.x_out(:,1)    = q0;
             obj.y_out(:,1)    = q0;
@@ -47,23 +48,24 @@ classdef TimeSteppingCLASS
             obj.controller = obj.controller.Init();
             
             for i = 2:size(obj.t_out,2)
-                yM = obj.y_out(:, i-1);
-
+                yM = obj.y_out(:, i);
+                uM = obj.u_out(:, i-1);
+                
                 % Controller
-                [status, obj.u_out(:,i-1), obj.controller] = obj.controller.Loop(obj.trajectory.x, obj.trajectory.u, yM, i);
+                [status, obj.u_out(:,i), obj.controller] = obj.controller.Loop(yM, uM, i);
                 
                 if ~status
                     break
                 end
 
                 % Update model
-                xM = obj.model.Function(obj.x_out(:, i-1), obj.u_out(:,i-1), obj.dt, obj.model.p);
+                xM = obj.model.Function(obj.x_out(:, i), obj.u_out(:,i), obj.dt, obj.model.p);
                 
                 % Add observer
                 yM = obj.observer.Observe(xM);
 
-                obj.x_out(:, i) = xM;
-                obj.y_out(:, i) = yM;
+                obj.x_out(:, i+1) = xM;
+                obj.y_out(:, i+1) = yM;
             end
         end
     end

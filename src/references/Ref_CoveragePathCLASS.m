@@ -10,6 +10,7 @@ classdef Ref_CoveragePathCLASS
         ddxddt;
         % Input
         u;
+        check;
     end
 
     % Private Properties
@@ -87,6 +88,8 @@ classdef Ref_CoveragePathCLASS
                 v_l = -obj.model.distance * dthetadt + sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
 
                 obj.u = [v_r; v_l];
+
+                obj.check = [dthetadt; sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2)];
             end
         end
     end

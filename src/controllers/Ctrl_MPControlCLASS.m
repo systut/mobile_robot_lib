@@ -56,12 +56,12 @@ classdef Ctrl_MPControlCLASS
             obj.initial_x = zeros(obj.nx*obj.N, 1);
         end
         
-        function [status, u_out, obj] = Loop(obj, reference_x, reference_u, y, index)
+        function [status, u_out, obj] = Loop(obj, y, u, index)
             %Loop Summary of this method goes here
             %   Detailed explanation goes here
             status = true;
 
-            iterations = length(reference_x) - obj.N;
+            iterations = length(obj.trajectory.x) - obj.N;
             
             if index > iterations
                 status = false;
@@ -72,8 +72,8 @@ classdef Ctrl_MPControlCLASS
             end
 
             % Get references for the current MPC loop
-            x_in_horizon = reference_x(:, index:index+obj.N);
-            u_in_horizon = reference_u(:, index:index+obj.N);
+            x_in_horizon = obj.trajectory.x(:, index:index+obj.N);
+            u_in_horizon = obj.trajectory.u(:, index:index+obj.N);
 
             [Aeq, beq] = obj.ConstructEqualityConstraint(x_in_horizon, u_in_horizon, y);
 

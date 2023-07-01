@@ -19,6 +19,7 @@ classdef AnimationCLASS
         simulation;
         fig; % The output window
         ax;  % The output axis
+        debug;
     end
 
     methods
@@ -37,6 +38,7 @@ classdef AnimationCLASS
             axis equal
             set(obj.fig,'Name','2D-Output');
             set(obj.fig,'Color','w');
+            obj.debug = false;
         end
 
         function obj = Animate(obj)
@@ -49,15 +51,17 @@ classdef AnimationCLASS
             plot(obj.simulation.x_out(1,:), obj.simulation.x_out(2,:), '--', 'Color', obj.green, 'linewidth', 1.5)
             
             eps = 10;
-
-            quiver(obj.trajectory.x(1,:), obj.trajectory.x(2,:), obj.trajectory.x(1,:) + eps * cos(obj.trajectory.x(3,:)), obj.trajectory.x(2,:) + eps * sin(obj.trajectory.x(3,:)),'-','filled')
+            
+            if obj.debug
+                quiver(obj.trajectory.x(1,:), obj.trajectory.x(2,:), obj.trajectory.x(1,:) + eps * cos(obj.trajectory.x(3,:)), obj.trajectory.x(2,:) + eps * sin(obj.trajectory.x(3,:)),'-','filled')
+            end
 
             if isa(obj.model,'Mdl_TractorTrailerCLASS')
                 plot(obj.simulation.x_out(4,:), obj.simulation.x_out(5,:), '-', 'Color', obj.blue, 'linewidth', 1.5)
             end
 
-            xlim([-50.0, 50.0]);
-            ylim([-10.0, 50.0]);
+            xlim([-2.0, 2.0]);
+            ylim([-2.5, 1.0]);
         end
     end
 end

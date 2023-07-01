@@ -6,32 +6,32 @@ clc
 
 
 % Params
-R = 20;
+R = 1;
 dt = 0.05;
 tSTART = 0;
 tMAX = 60;
 
 %% Set up model:
 model = Mdl_DifferentialDriveCLASS();
-model = Mdl_TractorTrailerCLASS();
+
 %% Initial state
 q0 = zeros(model.nx, 1);
 
 %% Set up trajectory:
 trajectory = Ref_EightCurveCLASS(model);
-trajectory = Ref_CoveragePathCLASS(model);
 trajectory.tMAX   = tMAX;                      % maximum simulation time
 trajectory.dt = dt; 
 trajectory.R = R; 
 trajectory = trajectory.Generate();
 
 %% Set up controller:
-controller = Ctrl_FeedForwardCLASS(model);
+% controller = Ctrl_FeedForwardCLASS(model, trajectory);
 % controller = Ctrl_MPControlCLASS(model, trajectory);
+controller = Ctrl_PurepursuitCLASS(model, trajectory);
 
 %% Set up observer; 
 observer = Obs_NormalCLASS(model);
-observer.noise_sigma =  diag([1, 1, 2, 1, 1, 2])*1e-3;
+observer.noise_sigma =  diag([1, 1, 2])*1e-5;
 
 %% Set up simultion: 
 simulation = TimeSteppingCLASS(model, trajectory, controller, observer);

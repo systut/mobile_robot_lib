@@ -32,7 +32,7 @@ classdef Obs_NormalCLASS
 
             measure_noise = obj.noise_mu + measure_noise';
 
-            state_out = state + measure_noise;
+            state_out = state;
         end
     end
 end

@@ -4,24 +4,26 @@ classdef Ctrl_FeedForwardCLASS
     
     properties
         model
+        trajectory
     end
     
     methods
-        function obj = Ctrl_FeedForwardCLASS(model)
+        function obj = Ctrl_FeedForwardCLASS(model, trajectory)
             %CTRL_BASECLASS Construct an instance of this class
             %   Detailed explanation goes here
             obj.model = model;
+            obj.trajectory = trajectory;
         end
         
         function obj = Init(obj)
         end
 
-        function [status, u, obj] = Loop(obj, reference_x, reference_u, y, index)
+        function [status, u, obj] = Loop(obj, y, u, index)
             %METHOD1 Summary of this method goes here
             %   Detailed explanation goes here
             status = true;
        
-            u = reference_u(:, index-1);
+            u = obj.trajectory.u(:, index-1);
         end
     end
 end
