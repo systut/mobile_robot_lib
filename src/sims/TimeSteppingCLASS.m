@@ -34,7 +34,7 @@ classdef TimeSteppingCLASS
         end
         
         function obj = Run(obj, q0)
-            obj.t_out    = obj.tSTART:obj.dt:obj.tMAX;
+            obj.t_out    = linspace(obj.tSTART, obj.tMAX, (1/obj.dt) * obj.tMAX);
             nt           = size(obj.t_out,2);
             obj.x_out    = zeros(obj.model.nx,nt);
             obj.y_out    = zeros(obj.model.nx,nt);
@@ -63,9 +63,11 @@ classdef TimeSteppingCLASS
                 
                 % Add observer
                 yM = obj.observer.Observe(xM);
-
-                obj.x_out(:, i+1) = xM;
-                obj.y_out(:, i+1) = yM;
+                
+                if i < length(obj.t_out)
+                    obj.x_out(:, i+1) = xM;
+                    obj.y_out(:, i+1) = yM;
+                end
             end
         end
     end

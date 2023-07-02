@@ -1,7 +1,7 @@
 classdef Ref_CoveragePathCLASS
     properties
         % Params
-        R; 
+        R = 20; 
         tMAX;
         dt;
         % States

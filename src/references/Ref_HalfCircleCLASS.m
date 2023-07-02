@@ -1,7 +1,7 @@
 classdef Ref_HalfCircleCLASS
     properties
         % Params
-        R; 
+        R = 60; 
         tMAX;
         dt;
         % States

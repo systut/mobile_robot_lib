@@ -6,7 +6,6 @@ clc
 
 
 % Params
-R = 1;
 dt = 0.05;
 tSTART = 0;
 tMAX = 60;
@@ -21,13 +20,13 @@ q0 = zeros(model.nx, 1);
 trajectory = Ref_EightCurveCLASS(model);
 trajectory.tMAX   = tMAX;                      % maximum simulation time
 trajectory.dt = dt; 
-trajectory.R = R; 
 trajectory = trajectory.Generate();
 
 %% Set up controller:
 % controller = Ctrl_FeedForwardCLASS(model, trajectory);
 % controller = Ctrl_MPControlCLASS(model, trajectory);
 controller = Ctrl_PurepursuitCLASS(model, trajectory);
+% controller = Ctrl_StanleyCLASS(model, trajectory);
 
 %% Set up observer; 
 observer = Obs_NormalCLASS(model);

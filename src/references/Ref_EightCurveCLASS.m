@@ -1,7 +1,7 @@
 classdef Ref_EightCurveCLASS
     properties
         % Params
-        R; 
+        R = 1; 
         tMAX;
         dt;
         % States
@@ -10,6 +10,7 @@ classdef Ref_EightCurveCLASS
         ddxddt;
         % Input
         u;
+        u_norm;
     end
 
     % Private Properties
@@ -42,9 +43,11 @@ classdef Ref_EightCurveCLASS
 
             if isa(obj.model, 'Mdl_BicycleCLASS')
                 v = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
+                
+                dthetadt = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
 
                 delta = atan(obj.model.length_base * (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (v.^3));
-
+            
                 ddeltadt = zeros(1, length(t));
 
                 for index = 2:length(t)
@@ -53,13 +56,19 @@ classdef Ref_EightCurveCLASS
 
                 obj.u = [v; ddeltadt]; 
 
+                obj.u_norm = [v; dthetadt]; 
             else
                 dthetadt = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
 
                 v_r = obj.model.distance * dthetadt + sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
+                
                 v_l = -obj.model.distance * dthetadt + sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
+                
+                v = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
 
                 obj.u = [v_r; v_l];
+
+                obj.u_norm = [v; dthetadt];
             end
         end
     end

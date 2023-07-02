@@ -48,9 +48,9 @@ classdef Ctrl_PurepursuitCLASS
 
             a = obj.pCalculateProportionalAcceleration(obj.trajectory.u(:, index), u);
 
-            v = (u(1) + u(2)) / 2 + a * obj.trajectory.dt;
+            w = (u(1) + u(2)) / 2 * 2.0 * sin(alpha) / lookahead;
 
-            w = v * 2.0 * sin(alpha) / lookahead;
+            v = (u(1) + u(2)) / 2 + a * obj.trajectory.dt;
 
             v_r = obj.model.distance * w + v;
 
