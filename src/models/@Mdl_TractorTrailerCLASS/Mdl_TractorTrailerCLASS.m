@@ -4,18 +4,20 @@ classdef Mdl_TractorTrailerCLASS
     
     properties
         % Parameters of the model
-        length_front = 0.01;
+        length_front = 0.3;
 
-        length_back = 0.01;
+        length_back = 0.3;
 
         distance = 0.53/2;
 
-        slip_right = 0;
+        slip_right = 0.3;
 
-        slip_left = 0;
+        slip_left = 0.3;
 
         % Parameter variables
         p;
+
+        p_without_slip;
 
         % Number of states
         nx;
@@ -33,6 +35,8 @@ classdef Mdl_TractorTrailerCLASS
             obj.nu = 2;
 
             obj.p = [obj.length_front, obj.length_back, obj.slip_right, obj.slip_left, obj.distance];
+        
+            obj.p_without_slip = [obj.length_front, obj.length_back, 0.0, 0.0, obj.distance];
         end
         A       = SystemMatrix(obj, state, input, dt, p);
         B       = ControlMatrix(obj, state, input, dt, p);

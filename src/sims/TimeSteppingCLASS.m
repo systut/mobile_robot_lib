@@ -47,15 +47,15 @@ classdef TimeSteppingCLASS
                 
             obj.controller = obj.controller.Init();
             
-            for i = 2:size(obj.t_out,2)
+            for i = 1:size(obj.t_out,2)
                 yM = obj.y_out(:, i);
-                uM = obj.u_out(:, i-1);
+                uM = obj.u_out(:, i);
                 
                 % Controller
                 [status, obj.u_out(:,i), obj.controller] = obj.controller.Loop(yM, uM, i);
                 
                 if ~status
-                    break
+                    obj.u_out(:,i) = zeros(2, 1);
                 end
 
                 % Update model

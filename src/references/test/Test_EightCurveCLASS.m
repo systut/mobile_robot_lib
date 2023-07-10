@@ -5,13 +5,13 @@ tSTART = 0;
 tMAX = 60;
 
 model = Mdl_TractorTrailerCLASS();
-trajectory = Ref_CoveragePathCLASS(model);
+trajectory = Ref_EightCurveCLASS(model);
 
 trajectory.tMAX   = tMAX;                      % maximum simulation time
 trajectory.dt = dt; 
 trajectory.R = R; 
-trajectory.mode = "load";
 trajectory = trajectory.Generate();
+trajectory.Save();
 
 figure;
 grey = [0.2431,    0.2667,    0.2980];

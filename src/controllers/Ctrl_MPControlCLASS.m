@@ -165,10 +165,10 @@ classdef Ctrl_MPControlCLASS
         %% Cost function
         function [H, f] = ConstructCostFunction(obj)
             % weighting matrices for robot state > 0 (1x3)
-            Q = diag([50, 50, .3]);
+            Q = diag([.3 ,.3 , .3, 50, 50, .3]);
     
             % weighting matrices for control input  > 0 (1x2)
-            R = diag([0.1, 0.1]);  
+            R = diag([0.00001, 0.00001]);  
 
             Qstack = [];
             Rstack = [];

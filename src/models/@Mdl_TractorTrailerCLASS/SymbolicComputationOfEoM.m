@@ -30,8 +30,8 @@ function SymbolicComputationOfEoM()
     dfdt = [cos(x(3)) * v;
             sin(x(3)) * v;
             w; 
-            v * cos(x(6)) * cos(delta) + w * length_back * cos(x(6)) * sin(delta);
-            v * sin(x(6)) * cos(delta) + w * length_back * sin(x(6)) * sin(delta);
+            v * cos(x(6)) * cos(delta) - w * length_back * cos(x(6)) * sin(delta);
+            v * sin(x(6)) * cos(delta) - w * length_back * sin(x(6)) * sin(delta);
           - v * (1/length_front) * sin(delta) - w * (length_back/length_front) * cos(delta)];
     
     f = state + subs(dfdt,[x;u],[state;input]) * dt;

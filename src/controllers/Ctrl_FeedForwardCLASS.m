@@ -23,7 +23,7 @@ classdef Ctrl_FeedForwardCLASS
             %   Detailed explanation goes here
             status = true;
        
-            u = obj.trajectory.u(:, index-1);
+            u = obj.trajectory.u(:, index);
         end
     end
 end
