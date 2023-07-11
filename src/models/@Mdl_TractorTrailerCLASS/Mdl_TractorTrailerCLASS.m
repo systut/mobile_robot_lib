@@ -24,6 +24,9 @@ classdef Mdl_TractorTrailerCLASS
 
         % Number of input
         nu;
+        
+        % Graphics information
+        graphics;
     end
     
     methods
@@ -37,6 +40,9 @@ classdef Mdl_TractorTrailerCLASS
             obj.p = [obj.length_front, obj.length_back, obj.slip_right, obj.slip_left, obj.distance];
         
             obj.p_without_slip = [obj.length_front, obj.length_back, 0.0, 0.0, obj.distance];
+
+            obj.graphics = [struct('x', 1, 'y', 2, 'theta', 3, 'color', 'w'); ...
+                            struct('x', 4, 'y', 5, 'theta', 6, 'color', 'r')];
         end
         A       = SystemMatrix(obj, state, input, dt, p);
         B       = ControlMatrix(obj, state, input, dt, p);

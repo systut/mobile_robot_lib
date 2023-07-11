@@ -1,7 +1,7 @@
 classdef Ref_EightCurveCLASS
     properties
         % Params
-        R = 20; 
+        R = 10; 
         tMAX;
         dt;
         % States

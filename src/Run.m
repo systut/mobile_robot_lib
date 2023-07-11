@@ -48,6 +48,6 @@ simulation = simulation.Run(q0);
 
 %% Set up animation:
 animation = AnimationCLASS(model, trajectory, controller, simulation);
-animation.Animate();
-animation.Plot();
+animation = animation.Animate();
+% animation.Plot();
 
