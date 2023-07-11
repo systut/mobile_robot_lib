@@ -16,12 +16,11 @@ model = Mdl_TractorTrailerCLASS();
 
 %% Initial state
 % q0 = zeros(model.nx, 1);
-q0 = [model.length_front + model.length_back;0.;0.;0.;0.;0];
+q0 = [0;0;0;-(model.length_front + model.length_back);0;0];
 
 %% Set up trajectory:
 % trajectory = Ref_EightCurveCLASS(model);
-% trajectory = Ref_CoveragePathCLASS(model);
-trajectory = Ref_CoveragePath2CLASS(model);
+trajectory = Ref_CoveragePathCLASS(model);
 % trajectory = Ref_HalfCircleCLASS(model);
 trajectory.tMAX   = tMAX;                      % maximum simulation time
 trajectory.dt = dt; 
@@ -29,8 +28,8 @@ trajectory.mode = "load";
 trajectory = trajectory.Generate();
 
 %% Set up controller:
-controller = Ctrl_FeedForwardCLASS(model, trajectory);
-% controller = Ctrl_MPControlCLASS(model, trajectory);
+% controller = Ctrl_FeedForwardCLASS(model, trajectory);
+controller = Ctrl_MPControlCLASS(model, trajectory);
 % controller = Ctrl_PurepursuitCLASS(model, trajectory);
 % controller = Ctrl_StanleyCLASS(model, trajectory);
 
