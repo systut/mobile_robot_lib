@@ -44,7 +44,7 @@ classdef AnimationCLASS
         function obj = Animate(obj)
             % Bring window to front:
             figure(obj.fig);
-            plot(obj.trajectory.x(1,:), obj.trajectory.x(2,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on, hold on,
+            plot(obj.trajectory.x(4,:), obj.trajectory.x(5,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on, hold on,
 
             plot(obj.simulation.y_out(1,:), obj.simulation.y_out(2,:), '--', 'Color', obj.red, 'linewidth', 1.5), grid on, hold on,
             
@@ -60,8 +60,30 @@ classdef AnimationCLASS
                 plot(obj.simulation.x_out(4,:), obj.simulation.x_out(5,:), '-', 'Color', obj.blue, 'linewidth', 1.5)
             end
 
-            xlim([-40.0, 40.0]);
-            ylim([-40.0, 40.0]);
+            current_xlim = xlim;
+            current_ylim = ylim;
+            xlim([current_xlim(1)-0.2*(current_xlim(2)-current_xlim(1)), current_xlim(2)+0.2*(current_xlim(2)-current_xlim(1))]);
+            ylim([current_ylim(1)-0.2*(current_ylim(2)-current_ylim(1)), current_ylim(2)+0.2*(current_ylim(2)-current_ylim(1))]);
+
+            figure("Name","Output")
+
+            subplot(3,1,1);
+
+            plot(obj.simulation.t_out(1,:), obj.simulation.u_out(1,:), '-', 'Color', obj.blue, 'linewidth', 1.5),grid on, hold on
+            title("vl");
+            plot(obj.simulation.t_out(1,:), obj.trajectory.u(1,:), '--', 'Color', obj.green, 'linewidth', 1.5)
+
+            subplot(3,1,2);
+
+            plot(obj.simulation.t_out(1,:), obj.simulation.u_out(2,:), '-', 'Color', obj.blue, 'linewidth', 1.5),grid on, hold on
+            title("vr");
+            plot(obj.simulation.t_out(1,:), obj.trajectory.u(2,:), '--', 'Color', obj.green, 'linewidth', 1.5)
+
+            subplot(3,1,3);
+            plot(obj.simulation.t_out(1,:), (obj.simulation.x_out(6,:)-obj.simulation.x_out(3,:))/pi*180, '-', 'Color', obj.blue, 'linewidth', 1.5),grid on, hold on
+            title("gamma");
+            plot(obj.simulation.t_out(1,:), (obj.trajectory.x_out(6,:)-obj.trajectory.x_out(3,:))/pi*180, '--', 'Color', obj.green, 'linewidth', 1.5)
+            
         end
     end
 end
