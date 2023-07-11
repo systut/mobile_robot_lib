@@ -1,7 +1,7 @@
 classdef Ref_CoveragePath2CLASS
     properties
         % Params
-        R = 2; 
+        R = 5; 
         tMAX;
         dt;
         % States
@@ -58,7 +58,7 @@ classdef Ref_CoveragePath2CLASS
             obj.ddxddt = [];
 
             for index=1:length(obj.t)/4
-                [x_, dxdt_, ddxddt_] = obj.GenerateStraightLine(v, [obj.x_start;obj.y_start], obj.t(index));
+                [x_, dxdt_, ddxddt_] = obj.GenerateStraightLine(v, [obj.x_start;obj.y_start; 0], obj.t(index));
 
                 obj.x = [obj.x, x_];
 
@@ -68,7 +68,7 @@ classdef Ref_CoveragePath2CLASS
             end
                     
             for index=1:length(obj.t)/2
-                [x_, dxdt_, ddxddt_] = obj.GenerateClockwiseHalfCircle(v, [obj.x_start + pi*obj.R/2 ; obj.y_start], obj.R, obj.t(index));
+                [x_, dxdt_, ddxddt_] = obj.GenerateClockwiseHalfCircle(v, [obj.x_start + pi*obj.R/2 ; obj.y_start; 0], obj.R, obj.t(index));
 
                 obj.x = [obj.x, x_];
 
@@ -79,7 +79,7 @@ classdef Ref_CoveragePath2CLASS
 
 
             for index=1:length(obj.t)/4
-                [x_, dxdt_, ddxddt_] = obj.GenerateStraightLine(-v,[obj.x_start + pi*obj.R/2; obj.y_start + 2*obj.R],obj.t(index));
+                [x_, dxdt_, ddxddt_] = obj.GenerateStraightLine(-v,[obj.x_start + pi*obj.R/2; obj.y_start + 2*obj.R; pi],obj.t(index));
 
                 obj.x = [obj.x, x_];
 
@@ -102,8 +102,6 @@ classdef Ref_CoveragePath2CLASS
                 obj.u = [v; ddeltadt]; 
 
             elseif isa(obj.model, 'Mdl_TractorTrailerCLASS')
-                delta2  = atan2(obj.dxdt(2,:), obj.dxdt(1,:));
-
                 w2 = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
                 
                 v2 = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
@@ -112,10 +110,12 @@ classdef Ref_CoveragePath2CLASS
                 
                 v1 = zeros(1, length(obj.t));
     
-                obj.x_out = [zeros(3, length(obj.t));obj.x; delta2];
+                obj.x_out = [zeros(3, length(obj.t));obj.x];
                 % Initial state
                 obj.x_out(1:3,1) = [ obj.model.length_front +  obj.model.length_back; 0 ; 0];
+                
                 w1(1) = -obj.model.length_front*(1/obj.model.length_back)*w2(1);
+
                 v1(1) = v2(1);
 
                 for index = 2:length(obj.t)
@@ -128,7 +128,7 @@ classdef Ref_CoveragePath2CLASS
 
                     gamma = obj.x_out(6, index) - obj.x_out(3, index);
 
-                    w1(index) = -(1/obj.model.length_back) * ( v2(index)*sin(gamma) + obj.model.length_front * w2(index) * cos(gamma));
+                    w1(index) = (1/obj.model.length_back) * ( v2(index)*sin(gamma) + obj.model.length_front * w2(index) * cos(gamma));
                     
                     v1(index) = v2(index)*cos(gamma) - obj.model.length_front*w2(index)*sin(gamma);
 
@@ -190,7 +190,7 @@ classdef Ref_CoveragePath2CLASS
 
     methods(Static)
         function [x, dxdt, ddxddt] = GenerateStraightLine(v, x0, t)
-            x      = x0 + [v * t; 0];
+            x      = x0 + [v * t; 0; 0];
 
             dxdt   = [v; 0];
 
@@ -198,7 +198,7 @@ classdef Ref_CoveragePath2CLASS
         end
 
         function [x, dxdt, ddxddt] = GenerateClockwiseHalfCircle(v, x0, R, t)
-            x      = x0 + [R*sin((1/R)*v*t); R - R*cos((1/R)*v*t)];
+            x      = x0 + [R*sin((1/R)*v*t); R - R*cos((1/R)*v*t); 1/R*v*t];
 
             dxdt   = [v * cos((1/R)*v*t) ; v * sin((1/R)*v*t)];
 

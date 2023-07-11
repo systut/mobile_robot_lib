@@ -16,15 +16,15 @@ model = Mdl_TractorTrailerCLASS();
 
 %% Initial state
 q0 = zeros(model.nx, 1);
-q0 = [model.length_front + model.length_back;0.1;0;0;0;0];
+q0 = [model.length_front + model.length_back;0;0;0;0;0];
 
 %% Set up trajectory:
 trajectory = Ref_EightCurveCLASS(model);
-% trajectory = Ref_CoveragePathCLASS(model);
+% trajectory = Ref_CoveragePath2CLASS(model);
 % trajectory = Ref_HalfCircleCLASS(model);
 trajectory.tMAX   = tMAX;                      % maximum simulation time
 trajectory.dt = dt; 
-trajectory.mode = "load";
+trajectory.mode = "normal";
 trajectory = trajectory.Generate();
 
 %% Set up controller:
@@ -35,7 +35,7 @@ controller = Ctrl_MPControlCLASS(model, trajectory);
 
 %% Set up observer; 
 observer = Obs_NormalCLASS(model, true);
-observer.noise_sigma = diag(ones(model.nx, 1))*1e-2;
+observer.noise_sigma = diag(ones(model.nx, 1))*1e-4;
 
 %% Set up simultion: 
 simulation = TimeSteppingCLASS(model, trajectory, controller, observer);

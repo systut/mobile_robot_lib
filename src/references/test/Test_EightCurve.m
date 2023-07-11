@@ -1,5 +1,5 @@
 % Params
-R = 20;
+R = 10;
 dt = 0.05;
 tSTART = 0;
 tMAX = 60;
@@ -10,8 +10,9 @@ trajectory = Ref_EightCurveCLASS(model);
 trajectory.tMAX   = tMAX;                      % maximum simulation time
 trajectory.dt = dt; 
 trajectory.R = R; 
+trajectory.mode = "normal";
 trajectory = trajectory.Generate();
-trajectory.Save();
+% trajectory.Save();
 
 figure;
 grey = [0.2431,    0.2667,    0.2980];

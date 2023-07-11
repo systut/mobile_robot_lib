@@ -5,12 +5,12 @@ tSTART = 0;
 tMAX = 60;
 
 model = Mdl_TractorTrailerCLASS();
-trajectory = Ref_CoveragePathCLASS(model);
+trajectory = Ref_CoveragePath2CLASS(model);
 
 trajectory.tMAX   = tMAX;                      % maximum simulation time
 trajectory.dt = dt; 
 trajectory.R = R; 
-trajectory.mode = "load";
+trajectory.mode = "normal";
 trajectory = trajectory.Generate();
 
 figure;

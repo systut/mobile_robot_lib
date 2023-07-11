@@ -44,9 +44,11 @@ classdef AnimationCLASS
         function obj = Animate(obj)
             % Bring window to front:
             figure(obj.fig);
-            
-            plot(obj.trajectory.x(1,:), obj.trajectory.x(2,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on, hold on,
-
+            if isa(obj.model,'Mdl_TractorTrailerCLASS')
+                plot(obj.trajectory.x(4,:), obj.trajectory.x(5,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on, hold on,
+            else
+                plot(obj.trajectory.x(1,:), obj.trajectory.x(2,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on, hold on,
+            end
             plot(obj.simulation.y_out(1,:), obj.simulation.y_out(2,:), '--', 'Color', obj.red, 'linewidth', 1.5), grid on, hold on,
             
             plot(obj.simulation.x_out(1,:), obj.simulation.x_out(2,:), '--', 'Color', obj.green, 'linewidth', 1.5)
@@ -61,14 +63,7 @@ classdef AnimationCLASS
                 plot(obj.simulation.x_out(4,:), obj.simulation.x_out(5,:), '-', 'Color', obj.blue, 'linewidth', 1.5)
             end
 
-            current_xlim = xlim;
-
-            current_ylim = ylim;
-
-            xlim([current_xlim(1)-0.2*(current_xlim(2)-current_xlim(1)), current_xlim(2)+0.2*(current_xlim(2)-current_xlim(1))]);
-            
-            ylim([current_ylim(1)-0.2*(current_ylim(2)-current_ylim(1)), current_ylim(2)+0.2*(current_ylim(2)-current_ylim(1))]);
-
+          
         end
 
         function Plot(obj)

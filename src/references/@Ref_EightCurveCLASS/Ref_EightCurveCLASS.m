@@ -1,7 +1,7 @@
 classdef Ref_EightCurveCLASS
     properties
         % Params
-        R = 1; 
+        R = 20; 
         tMAX;
         dt;
         % States
@@ -79,33 +79,46 @@ classdef Ref_EightCurveCLASS
                 obj.u_norm = [v; dthetadt]; 
 
             elseif isa(obj.model, 'Mdl_TractorTrailerCLASS')
-                w = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
+                w2 = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
                 
-                v = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
+                v2 = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
 
-                w_ = zeros(1, length(obj.t));
-
-                v_ = zeros(1, length(obj.t));
-
+                w1 = zeros(1, length(obj.t));
+                
+                v1 = zeros(1, length(obj.t));
+    
                 obj.x_out = [zeros(3, length(obj.t));obj.x];
+                % Initial state
+                obj.x_out(1:3,1) = [ obj.model.length_front +  obj.model.length_back; 0 ; 0];
+                
+                w1(1) = -obj.model.length_front*(1/obj.model.length_back)*w2(1);
+
+                v1(1) = v2(1);
 
                 for index = 2:length(obj.t)
-                    [v_(index),w_(index),obj.x_out(3, index)] = obj.solveW(v(index), w(index), obj.x_out(6, index), obj.x_out(3, index-1));
-                    
-                    obj.x_out(1, index) = obj.x_out(1, index-1) + v_(index) * cos(obj.x_out(3, index-1)) * obj.dt;
 
-                    obj.x_out(2, index) = obj.x_out(2, index-1) + v_(index) * sin(obj.x_out(3, index-1)) * obj.dt;
+                    obj.x_out(1, index) = obj.x_out(1, index-1) + v1(index-1) * cos(obj.x_out(3, index-1)) * obj.dt;
+
+                    obj.x_out(2, index) = obj.x_out(2, index-1) + v1(index-1) * sin(obj.x_out(3, index-1)) * obj.dt;
+
+                    obj.x_out(3, index) = obj.x_out(3, index-1) + w1(index-1) * obj.dt;
+
+                    gamma = obj.x_out(6, index) - obj.x_out(3, index);
+
+                    w1(index) = (1/obj.model.length_back) * ( v2(index)*sin(gamma) + obj.model.length_front * w2(index) * cos(gamma));
+                    
+                    v1(index) = v2(index)*cos(gamma) - obj.model.length_front*w2(index)*sin(gamma);
 
                 end
-                
+
                 obj.x = obj.x_out;
 
-                v_r = obj.model.distance * w_ + v_;
-                v_l = -obj.model.distance * w_ + v_;
+                v_r = obj.model.distance * w1 + v1;
+                v_l = -obj.model.distance * w1 + v1;
 
                 obj.u = [v_r; v_l];
 
-                obj.u_norm = [v_;w_];
+                obj.u_norm = [v1;w1];
 
             else
                 dthetadt = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
