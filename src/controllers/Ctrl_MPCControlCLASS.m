@@ -1,4 +1,4 @@
-classdef Ctrl_MPControlCLASS
+classdef Ctrl_MPCControlCLASS
     %CTRL_MPCONTROLCLASS Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -29,7 +29,7 @@ classdef Ctrl_MPControlCLASS
     end
     
     methods (Access = public)
-        function obj = Ctrl_MPControlCLASS(model, trajectory)
+        function obj = Ctrl_MPCControlCLASS(model, trajectory)
             %CTRL_MPCCONTROLCLASS Construct an instance of this class
             %   Detailed explanation goes here
             obj.model = model;
@@ -45,7 +45,7 @@ classdef Ctrl_MPControlCLASS
         function obj = Init(obj)
             obj.ConstructInequalityConstraint();
 
-            obj.nx = obj.model.nx;
+            obj.nx = obj.model.nx + 1;
 
             obj.nu = obj.model.nu;
 
@@ -188,6 +188,7 @@ classdef Ctrl_MPControlCLASS
             % system function (1x64)
             f = zeros(1, obj.nx * (obj.N + 1) + obj.nu * obj.N);
         end
+
     end
 end
 

@@ -44,6 +44,7 @@ classdef AnimationCLASS
         function obj = Animate(obj)
             % Bring window to front:
             figure(obj.fig);
+            
             plot(obj.trajectory.x(1,:), obj.trajectory.x(2,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on, hold on,
 
             plot(obj.simulation.y_out(1,:), obj.simulation.y_out(2,:), '--', 'Color', obj.red, 'linewidth', 1.5), grid on, hold on,
@@ -60,8 +61,22 @@ classdef AnimationCLASS
                 plot(obj.simulation.x_out(4,:), obj.simulation.x_out(5,:), '-', 'Color', obj.blue, 'linewidth', 1.5)
             end
 
-            xlim([-40.0, 40.0]);
-            ylim([-40.0, 40.0]);
+            ylim([-55.0, 5.0]);
+            xlim([-30.0, 30.0]);
+        end
+
+        function Plot(obj)
+            figure('Name','Error (x)');
+            error = obj.simulation.x_out(4,:) - obj.trajectory.x(4,:); 
+            plot(obj.trajectory.t(:), error(:), '-', 'Color', obj.blue, 'linewidth', 1.5), grid on, hold on,
+
+            figure('Name','Error (y)');
+            error = obj.simulation.x_out(5,:) - obj.trajectory.x(5,:); 
+            plot(obj.trajectory.t(:), error(:), '-', 'Color', obj.blue, 'linewidth', 1.5), grid on, hold on,
+
+            figure('Name','Error (theta)');
+            error = obj.simulation.x_out(6,:) - obj.trajectory.x(6,:); 
+            plot(obj.trajectory.t(:), error(:), '-', 'Color', obj.blue, 'linewidth', 1.5), grid on, hold on,
         end
     end
 end

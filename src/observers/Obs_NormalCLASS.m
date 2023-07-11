@@ -10,10 +10,12 @@ classdef Obs_NormalCLASS
         noise_variance;
 
         model;
+
+        is_noisy;
     end
     
     methods
-        function obj = Obs_NormalCLASS(model)
+        function obj = Obs_NormalCLASS(model, is_noisy)
             %OBS_NORMALCLASS Construct an instance of this class
             %   Detailed explanation goes here
             rng('default');
@@ -21,6 +23,8 @@ classdef Obs_NormalCLASS
             obj.model = model;
 
             obj.noise_mu = zeros(obj.model.nx,1);
+
+            obj.is_noisy = is_noisy;
         end
         
         function state_out = Observe(obj, state)
@@ -29,10 +33,14 @@ classdef Obs_NormalCLASS
             obj.noise_variance = chol(obj.noise_sigma);
 
             measure_noise = randn(1, obj.model.nx) * obj.noise_variance;
-
+            
             measure_noise = obj.noise_mu + measure_noise';
+            
+            state_out = state + measure_noise;
 
-            state_out = state;
+            if ~obj.is_noisy
+                state_out = state;
+            end
         end
     end
 end
