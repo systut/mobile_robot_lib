@@ -61,8 +61,14 @@ classdef AnimationCLASS
                 plot(obj.simulation.x_out(4,:), obj.simulation.x_out(5,:), '-', 'Color', obj.blue, 'linewidth', 1.5)
             end
 
-            ylim([-55.0, 5.0]);
-            xlim([-30.0, 30.0]);
+            current_xlim = xlim;
+
+            current_ylim = ylim;
+
+            xlim([current_xlim(1)-0.2*(current_xlim(2)-current_xlim(1)), current_xlim(2)+0.2*(current_xlim(2)-current_xlim(1))]);
+            
+            ylim([current_ylim(1)-0.2*(current_ylim(2)-current_ylim(1)), current_ylim(2)+0.2*(current_ylim(2)-current_ylim(1))]);
+
         end
 
         function Plot(obj)
