@@ -1,5 +1,5 @@
 % Params
-R = 20;
+R = 10;
 dt = 0.05;
 tSTART = 0;
 tMAX = 60;
@@ -19,9 +19,6 @@ green = [0.0000, 0.6902, 0.3137];
 red = [0.6902, 0, 0.3137];
 blue = [0.0000, 0.3176, 0.6196];
 
-plot(trajectory.x(4,:), trajectory.x(5,:), '--', 'Color', grey, 'linewidth', 1.5), grid on, hold on,
+plot(trajectory.x(1,:), trajectory.x(2,:), '--', 'Color', grey, 'linewidth', 1.5), grid on, hold on,
 
-plot(trajectory.x(1,:), trajectory.x(2,:), '--', 'Color', green, 'linewidth', 1.5)
-
-figure;
-plot(trajectory.t(:), trajectory.x(3,:), '--', 'Color', blue, 'linewidth', 1.5)
+plot(trajectory.x(4,:), trajectory.x(5,:), '--', 'Color', green, 'linewidth', 1.5)

@@ -12,8 +12,9 @@ classdef TimeSteppingCLASS
         t_out    = [];
         x_out    = [];
         y_out    = [];
-        dxdt_out = [];
+        dxdt_out = [];we
         u_out  = [];
+        debug = [];
     end
     
     % Private Properties
@@ -44,7 +45,7 @@ classdef TimeSteppingCLASS
             obj.y_out(:,1)    = q0;
 
             obj.u_out = zeros(2,nt);
-                
+            obj.debug = zeros(2, nt);
             obj.controller = obj.controller.Init();
             
             for i = 1:size(obj.t_out,2)
@@ -57,6 +58,21 @@ classdef TimeSteppingCLASS
                 if ~status
                     obj.u_out(:,i) = zeros(2, 1);
                 end
+                v = (obj.u_out(1, i) + obj.u_out(2, i))/2;
+
+                w = (obj.u_out(1, i) - obj.u_out(2, i))/(2 * obj.model.distance);
+
+%                 delta = obj.x_out(6, i) - obj.x_out(3, i);
+
+                obj.debug(1, i) = v;
+
+                obj.debug(2, i) = w;
+% 
+%                 obj.debug(3, i) = v * cos(delta) - w * obj.model.length_back * sin(delta);
+%           
+%                 obj.debug(4, i) = - v * (1/obj.model.length_front) * sin(delta) - w * (obj.model.length_back/obj.model.length_front) * cos(delta);
+%                 
+%                 obj.debug(5, i) = delta;
 
                 % Update model
                 xM = obj.model.Function(obj.x_out(:, i), obj.u_out(:,i), obj.dt, obj.model.p);

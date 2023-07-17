@@ -46,7 +46,7 @@ classdef AnimationCLASS
             axis equal
             set(obj.fig,'Name','2D Animation');
             set(obj.fig,'Color','w');
-            obj.debug = false;
+            obj.debug = true;
         end
 
         function obj = Animate(obj)
@@ -84,7 +84,7 @@ classdef AnimationCLASS
         
         function obj = Update(obj, t, state, mode) 
             if isa(obj.model,'Mdl_TractorTrailerCLASS')
-                plot(obj.trajectory.x(4,:), obj.trajectory.x(5,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on,
+                plot(obj.trajectory.x(1,:), obj.trajectory.x(2,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on,
             else
                 plot(obj.trajectory.x(1,:), obj.trajectory.x(2,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on,
             end
@@ -113,6 +113,18 @@ classdef AnimationCLASS
             end
 
             drawnow;
+
+            frame = getframe(1);
+
+            im = frame2im(frame);
+
+            [imind, cm] = rgb2ind(im,256);
+
+            if strcmp(mode, "init")
+                imwrite(imind, cm, 'test.gif', 'gif', 'DelayTime', 0, 'loopcount', inf);
+            else
+                imwrite(imind, cm, 'test.gif', 'gif', 'DelayTime', 0, 'writemode', 'append');
+            end 
         end
 
         function Plot(obj)
@@ -125,7 +137,7 @@ classdef AnimationCLASS
             end
             plot(obj.simulation.y_out(1,:), obj.simulation.y_out(2,:), '--', 'Color', obj.red, 'linewidth', 1.5), grid on, hold on,
             
-            plot(obj.simulation.x_out(1,:), obj.simulation.x_out(2,:), '--', 'Color', obj.green, 'linewidth', 1.5)
+            plot(obj.simulation.x_out(1,:), obj.simulation.x_out(2,:), '--', 'Color', obj.green, 'linewidth', 1.5), grid on, hold on,
                         
             if isa(obj.model,'Mdl_TractorTrailerCLASS')
                 plot(obj.simulation.x_out(4,:), obj.simulation.x_out(5,:), '-', 'Color', obj.blue, 'linewidth', 1.5)
@@ -133,15 +145,15 @@ classdef AnimationCLASS
             
             if obj.debug
                 figure('Name','Error (x)');
-                error = obj.simulation.x_out(4,:) - obj.trajectory.x(4,:); 
+                error = obj.simulation.x_out(4,:) - obj.trajectory.x(1,:); 
                 plot(obj.trajectory.t(:), error(:), '-', 'Color', obj.blue, 'linewidth', 1.5), grid on, hold on,
     
                 figure('Name','Error (y)');
-                error = obj.simulation.x_out(5,:) - obj.trajectory.x(5,:); 
+                error = obj.simulation.x_out(5,:) - obj.trajectory.x(2,:); 
                 plot(obj.trajectory.t(:), error(:), '-', 'Color', obj.blue, 'linewidth', 1.5), grid on, hold on,
     
                 figure('Name','Error (theta)');
-                error = obj.simulation.x_out(6,:) - obj.trajectory.x(6,:); 
+                error = obj.simulation.x_out(6,:) - obj.trajectory.x(3,:); 
                 plot(obj.trajectory.t(:), error(:), '-', 'Color', obj.blue, 'linewidth', 1.5), grid on, hold on,
             end
         end

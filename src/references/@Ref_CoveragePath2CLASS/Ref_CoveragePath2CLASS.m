@@ -1,7 +1,7 @@
 classdef Ref_CoveragePath2CLASS
     properties
         % Params
-        R = 5; 
+        R = 1; 
         tMAX;
         dt;
         % States
@@ -11,6 +11,7 @@ classdef Ref_CoveragePath2CLASS
         % Input
         u;
         u_norm;
+        u_norm_back;
         x_out;
         % Timestamp
         t;
@@ -101,7 +102,7 @@ classdef Ref_CoveragePath2CLASS
 
                 obj.u = [v; ddeltadt]; 
 
-            elseif isa(obj.model, 'Mdl_TractorTrailerCLASS')
+            elseif isa(obj.model, 'aMdl_TractorTrailerCLASS')
                 w2 = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
                 
                 v2 = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
@@ -128,10 +129,9 @@ classdef Ref_CoveragePath2CLASS
 
                     gamma = obj.x_out(6, index) - obj.x_out(3, index);
 
-                    w1(index) = (1/obj.model.length_back) * ( v2(index)*sin(gamma) + obj.model.length_front * w2(index) * cos(gamma));
+                    w1(index) = (-1/obj.model.length_back) * ( v2(index)*sin(gamma) + obj.model.length_front * w2(index) * cos(gamma));
                     
                     v1(index) = v2(index)*cos(gamma) - obj.model.length_front*w2(index)*sin(gamma);
-
                 end
 
                 obj.x = obj.x_out;
@@ -143,13 +143,25 @@ classdef Ref_CoveragePath2CLASS
 
                 obj.u_norm = [v1;w1];
 
+                obj.u_norm_back = [v1;w1;v2;w2;obj.x_out(6, :)-obj.x_out(3, :)];
             else
                 dthetadt = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
 
                 v_r = obj.model.distance * dthetadt + sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
                 v_l = -obj.model.distance * dthetadt + sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
-
+                   
                 obj.u = [v_r; v_l];
+
+                obj.x_out(:, 1) = [0;0;0;-(obj.model.length_back + obj.model.length_front);0;0];
+
+                for index=1:length(obj.t)-1
+
+                     xM = obj.model.Function(obj.x_out(:, index), obj.u(:,index), obj.dt, obj.model.p_without_slip);
+                       
+                     obj.x_out(:, index+1) = xM;
+                end
+
+                obj.x = obj.x_out;
 
                 obj.u_norm = [dthetadt; sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2)];
             end
