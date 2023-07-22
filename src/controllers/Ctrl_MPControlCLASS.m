@@ -18,8 +18,10 @@ classdef Ctrl_MPControlCLASS
         % Intial input and state for optimization
         initial_x;
         initial_u;
+        initial_aug;
         nx;
         nu;
+        naug;
     end
    
     % Private Properties
@@ -40,20 +42,24 @@ classdef Ctrl_MPControlCLASS
             'TolFun', obj.tol_opt,...
             'MaxIter', 10000,...
             'TolConSQP', 1e-6); 
-        end
-
-        function obj = Init(obj)
-            obj.ConstructInequalityConstraint();
+            obj.naug = 1;
 
             obj.nx = obj.model.nx;
 
             obj.nu = obj.model.nu;
 
-            obj.N = 10;
+            obj.N = 50;
+        end
+
+        function obj = Init(obj)
+           
+            obj = obj.ConstructInequalityConstraint();
 
             obj.initial_u = zeros(obj.nu*obj.N, 1);
 
-            obj.initial_x = zeros(obj.nx*obj.N, 1);
+            obj.initial_x = zeros(obj.nx*(obj.N+1), 1);
+
+            obj.initial_aug = zeros(obj.naug, 1);
         end
         
         function [status, u_out, obj] = Loop(obj, y, u, index)
@@ -81,24 +87,28 @@ classdef Ctrl_MPControlCLASS
 
             % Solve optimization problem
             % Initial value for decision variable
-            z0 = [obj.initial_x; obj.initial_u];
+            z0 = [obj.initial_x; obj.initial_u; obj.initial_aug];
+
             [solution,~,exit_flag,~] = quadprog(H, f, obj.Ai, obj.bi, Aeq, beq, [], [], z0, obj.options);
             
             if exit_flag ~= 1
                 status = false;
+
+                u_out = zeros(2, 1);
+
                 return
             end 
 
             % Derive optimal predicted state and input sequence
             x_optimal = solution(1:obj.nx*(obj.N+1), 1);
-            u_optimal = solution(obj.nx*(obj.N+1)+1:end, 1);
+            u_optimal = solution(obj.nx*(obj.N+1)+1:end-(obj.N+1), 1);
             u_optimal_reshaped = reshape(u_optimal, obj.nu, obj.N);
             
             % Get control input needed for the simulated WMR
             u_out = u_optimal_reshaped(:,1) + u_in_horizon(:, 1);
 
-            obj.initial_x = [x_optimal(obj.nx+1:end); y - x_in_horizon(:, obj.N)];
-            obj.initial_u = [u_optimal(obj.nu+1:end); zeros(obj.nu, 1)]; 
+            obj.initial_x = [x_optimal(obj.nx+1:end-(obj.N+1)); y - x_in_horizon(:, obj.N)];
+            obj.initial_u = [u_optimal(obj.nu+1:end-(obj.N+1)); zeros(obj.nu, 1)]; 
         end
 
         %% Inequality constraint
@@ -118,17 +128,25 @@ classdef Ctrl_MPControlCLASS
                       zeros(size(H_u,1),k*obj.nu), H_u];
                 bu = [bu; k_u];
             end
-
             clear('k')
             
+            k_x = pi/4 * ones(obj.N+1, 1);
+
+            clear('k')
+
             obj.Ai = [zeros(size(Au,1),obj.nx*(obj.N+1)), Au];
-            obj.bi = bu;
+
+            obj.Ai = blkdiag(obj.Ai, diag(ones(obj.N+1, 1)));
+
+            obj.bi = [bu; k_x];
         end
 
         function [Aeq, beq] = ConstructEqualityConstraint(obj, x_in_horizon, u_in_horizon, y)
                 % Build equality constraints (dynamics)
                 Aeq = zeros(obj.nx*(obj.N+1), obj.nx*(obj.N+1) + obj.nu*obj.N);
                 beq = zeros(obj.nx*(obj.N+1), 1);
+                aug = zeros(obj.nx, obj.N+1);
+                aug(:, 1) = y;
 
                 for k = 0:obj.N-1
                     % System matrices for system linearized around the reference
@@ -153,6 +171,8 @@ classdef Ctrl_MPControlCLASS
                         zeros(obj.nx, obj.nu*k), ...
                         B, ...
                         zeros(obj.nx, obj.nu*(obj.N-1-k))];
+
+                    aug(:, k+2) = obj.model.Function(aug(:, k+1), u, obj.trajectory.dt, obj.model.p_without_slip);
                 end
                 clear('k')
                 
@@ -160,33 +180,44 @@ classdef Ctrl_MPControlCLASS
                 Aeq(obj.nx*obj.N+1:obj.nx*(obj.N+1), :) = [eye(obj.nx), zeros(obj.nx, obj.nx*obj.N+obj.nu*obj.N)];
                 
                 beq(obj.nx*obj.N+1:obj.nx*(obj.N+1))    = y - x_in_horizon(:, 1);
+
+                % Augment state constraints
+                Aeq = blkdiag(Aeq, diag(ones(obj.N+1, 1)));
+
+                beq = [beq; aug(6, :)' - aug(3, :)'];
         end
 
         %% Cost function
         function [H, f] = ConstructCostFunction(obj)
             % weighting matrices for robot state > 0 (1x3)
-            Q = diag([50, 50, .3, .3, .3, .3]);
+            Q = diag([0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001]);
     
             % weighting matrices for control input  > 0 (1x2)
             R = diag([0.00001, 0.00001]);  
+            
+            S = 50;
 
             Qstack = [];
             Rstack = [];
+            Sstack = [];
             
             for k = 1:obj.N
                 % Stage cost : weighting matrics for input (in discrete horizon) (40x40)
                 Qstack = blkdiag(Qstack, Q);
                 % Stage cost : weighting matrics for output (in discrete horizon) (20x20)
                 Rstack = blkdiag(Rstack, R);
+                % Stage cost : weighting matrics for augment
+                Sstack = blkdiag(Sstack, S);
             end
             clear('k')
 
             % terminal cost = 0 (At end of horizon)
             Qstack = blkdiag(Qstack, zeros(obj.nx));
-            H = blkdiag(Qstack, Rstack);
+            Sstack = blkdiag(Sstack, zeros(obj.naug));
+            H = blkdiag(Qstack, Rstack, Sstack);
             
             % system function (1x64)
-            f = zeros(1, obj.nx * (obj.N + 1) + obj.nu * obj.N);
+            f = zeros(1, obj.nx * (obj.N + 1) + obj.nu * obj.N + obj.naug * (obj.N + 1));
         end
     end
 end

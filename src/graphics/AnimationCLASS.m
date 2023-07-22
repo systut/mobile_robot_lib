@@ -142,18 +142,19 @@ classdef AnimationCLASS
             if isa(obj.model,'Mdl_TractorTrailerCLASS')
                 plot(obj.simulation.x_out(4,:), obj.simulation.x_out(5,:), '-', 'Color', obj.blue, 'linewidth', 1.5)
             end
+            legend('Reference trajectory','Measurement', 'Tractor trajectory', 'Trailer trajectory')
             
             if obj.debug
                 figure('Name','Error (x)');
-                error = obj.simulation.x_out(4,:) - obj.trajectory.x(1,:); 
+                error = obj.simulation.x_out(1,:) - obj.trajectory.x(1,:); 
                 plot(obj.trajectory.t(:), error(:), '-', 'Color', obj.blue, 'linewidth', 1.5), grid on, hold on,
     
                 figure('Name','Error (y)');
-                error = obj.simulation.x_out(5,:) - obj.trajectory.x(2,:); 
+                error = obj.simulation.x_out(2,:) - obj.trajectory.x(2,:); 
                 plot(obj.trajectory.t(:), error(:), '-', 'Color', obj.blue, 'linewidth', 1.5), grid on, hold on,
     
                 figure('Name','Error (theta)');
-                error = obj.simulation.x_out(6,:) - obj.trajectory.x(3,:); 
+                error = obj.simulation.x_out(3,:) - obj.trajectory.x(3,:); 
                 plot(obj.trajectory.t(:), error(:), '-', 'Color', obj.blue, 'linewidth', 1.5), grid on, hold on,
             end
         end

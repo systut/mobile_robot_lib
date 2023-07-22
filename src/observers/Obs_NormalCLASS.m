@@ -33,9 +33,8 @@ classdef Obs_NormalCLASS
             obj.noise_variance = chol(obj.noise_sigma);
 
             measure_noise = randn(1, obj.model.nx) * obj.noise_variance;
-            
+
             measure_noise = obj.noise_mu + measure_noise';
-            
             state_out = state + measure_noise;
 
             if ~obj.is_noisy

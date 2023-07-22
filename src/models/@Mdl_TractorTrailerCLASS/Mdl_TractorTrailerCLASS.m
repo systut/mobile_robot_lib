@@ -10,9 +10,9 @@ classdef Mdl_TractorTrailerCLASS
 
         distance = 0.48;
 
-        slip_right = 0.3;
+        slip_right = 0.0;
 
-        slip_left = 0.3;
+        slip_left = 0.0;
 
         % Parameter variables
         p;

@@ -102,7 +102,7 @@ classdef Ref_CoveragePath2CLASS
 
                 obj.u = [v; ddeltadt]; 
 
-            elseif isa(obj.model, 'aMdl_TractorTrailerCLASS')
+            elseif isa(obj.model, 'Mdl_TractorTrailerCLASS')
                 w2 = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
                 
                 v2 = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
