@@ -24,6 +24,7 @@ classdef AnimationCLASS
         ax;  % The output axis
         debug;
         robots;
+        predicted_horizon;
     end
 
     methods
@@ -59,15 +60,19 @@ classdef AnimationCLASS
             
             % Interpolate the results from the solver to this time grid:
             x    = interp1(obj.simulation.t_out,obj.simulation.x_out.',t.').';
-
+            if isa(obj.controller,'Ctrl_MPControlCLASS')
+                predicted_x = interp1(obj.simulation.t_out,obj.simulation.predicted_x_out.',t.').';
+            end
             % Fit animation graphics
             multiplier = (max(x(1, :)) - min(x(1, :))) / 8;
+% 
+%             axis([min(x(1, :)) - multiplier, ...
+%                   max(x(1, :)) + multiplier, ...
+%                   min(x(2, :)) - multiplier, ...
+%                   max(x(2, :)) + multiplier]);
 
-            axis([min(x(1, :)) - multiplier, ...
-                  max(x(1, :)) + multiplier, ...
-                  min(x(2, :)) - multiplier, ...
-                  max(x(2, :)) + multiplier]);
-
+            axis([-5,10,-5,10]);
+            
             % Run Animation
             tic
             for i = 1:nt
@@ -76,6 +81,19 @@ classdef AnimationCLASS
                 else
                     obj = obj.Update(t(:,i), x(:,i), 'update');
                 end
+
+                if isa(obj.controller,'Ctrl_MPControlCLASS')
+                    x_horizon = reshape(predicted_x(:,i),6,[]);
+                    if i == 1
+                        obj.predicted_horizon = plot(x_horizon(1,:),x_horizon(2,:),"Color", obj.green,'linewidth', 1.5)
+                    else
+                        obj.predicted_horizon.XData = x_horizon(1,:);
+                        obj.predicted_horizon.YData = x_horizon(2,:);
+                    end
+                    uistack(obj.predicted_horizon, "top");
+                    drawnow;
+                end
+
                 while toc<t(:,i)*obj.slowDown
                     pause(0.01);
                 end
@@ -84,7 +102,8 @@ classdef AnimationCLASS
         
         function obj = Update(obj, t, state, mode) 
             if isa(obj.model,'Mdl_TractorTrailerCLASS')
-                plot(obj.trajectory.x(1,:), obj.trajectory.x(2,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on,
+                plot(obj.trajectory.x(4,:), obj.trajectory.x(5,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on, hold on,
+                plot(obj.trajectory.x(1,:), obj.trajectory.x(2,:), '--', 'Color', obj.blue, 'linewidth', 1.5), grid on,
             else
                 plot(obj.trajectory.x(1,:), obj.trajectory.x(2,:), '--', 'Color', obj.grey, 'linewidth', 1.5), grid on,
             end
@@ -155,6 +174,11 @@ classdef AnimationCLASS
                 figure('Name','Error (theta)');
                 error = obj.simulation.x_out(6,:) - obj.trajectory.x(3,:); 
                 plot(obj.trajectory.t(:), error(:), '-', 'Color', obj.blue, 'linewidth', 1.5), grid on, hold on,
+
+                figure('Name','Hitching angle (beta)');
+                beta = obj.simulation.x_out(3,:) - obj.trajectory.x_out(6,:); 
+                beta_in_deg = beta.*180/pi;
+                plot(obj.trajectory.t(:), beta_in_deg(:), '-', 'Color', obj.blue, 'linewidth', 1.5), grid on, hold on,
             end
         end
     end
