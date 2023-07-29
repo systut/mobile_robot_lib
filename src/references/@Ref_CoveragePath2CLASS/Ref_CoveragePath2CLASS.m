@@ -89,7 +89,7 @@ classdef Ref_CoveragePath2CLASS
                 obj.ddxddt = [obj.ddxddt, ddxddt_];
             end
     
-            if isa(obj.model, 'Mdl_BicycleCLASS')
+            if isa(obj.model, 'aMdl_BicycleCLASS')
                 v = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
 
                 delta = atan(obj.model.length_base * (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (v.^3));
@@ -102,7 +102,7 @@ classdef Ref_CoveragePath2CLASS
 
                 obj.u = [v; ddeltadt]; 
 
-            elseif isa(obj.model, 'aMdl_TractorTrailerCLASS')
+            elseif isa(obj.model, 'Mdl_TractorTrailerCLASS')
                 w2 = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
                 
                 v2 = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
