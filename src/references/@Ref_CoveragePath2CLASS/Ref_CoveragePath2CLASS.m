@@ -89,7 +89,7 @@ classdef Ref_CoveragePath2CLASS
                 obj.ddxddt = [obj.ddxddt, ddxddt_];
             end
     
-            if isa(obj.model, 'aMdl_BicycleCLASS')
+            if isa(obj.model, 'Mdl_BicycleCLASS')
                 v = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
 
                 delta = atan(obj.model.length_base * (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (v.^3));
