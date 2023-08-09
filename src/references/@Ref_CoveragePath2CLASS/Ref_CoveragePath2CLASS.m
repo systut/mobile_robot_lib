@@ -2,6 +2,7 @@ classdef Ref_CoveragePath2CLASS
     properties
         % Params
         R = 1; 
+        ref_vehicle = "tractor";
         tMAX;
         dt;
         % States
@@ -103,67 +104,72 @@ classdef Ref_CoveragePath2CLASS
                 obj.u = [v; ddeltadt]; 
 
             elseif isa(obj.model, 'Mdl_TractorTrailerCLASS')
-                w2 = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
-                
-                v2 = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
+                if obj.ref_vehicle == "trailer"
 
-                w1 = zeros(1, length(obj.t));
-                
-                v1 = zeros(1, length(obj.t));
-    
-                obj.x_out = [zeros(3, length(obj.t));obj.x];
-                % Initial state
-                obj.x_out(1:3,1) = [ obj.model.length_front +  obj.model.length_back; 0 ; 0];
-                
-                w1(1) = -obj.model.length_front*(1/obj.model.length_back)*w2(1);
-
-                v1(1) = v2(1);
-
-                for index = 2:length(obj.t)
-
-                    obj.x_out(1, index) = obj.x_out(1, index-1) + v1(index-1) * cos(obj.x_out(3, index-1)) * obj.dt;
-
-                    obj.x_out(2, index) = obj.x_out(2, index-1) + v1(index-1) * sin(obj.x_out(3, index-1)) * obj.dt;
-
-                    obj.x_out(3, index) = obj.x_out(3, index-1) + w1(index-1) * obj.dt;
-
-                    gamma = obj.x_out(6, index) - obj.x_out(3, index);
-
-                    w1(index) = (-1/obj.model.length_back) * ( v2(index)*sin(gamma) + obj.model.length_front * w2(index) * cos(gamma));
+                    w2 = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
                     
-                    v1(index) = v2(index)*cos(gamma) - obj.model.length_front*w2(index)*sin(gamma);
+                    v2 = sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
+
+                    w1 = zeros(1, length(obj.t));
+                    
+                    v1 = zeros(1, length(obj.t));
+        
+                    obj.x_out = [zeros(3, length(obj.t));obj.x];
+                    % Initial state
+                    obj.x_out(1:3,1) = [ obj.model.length_front +  obj.model.length_back; 0 ; 0];
+                    
+                    w1(1) = -obj.model.length_front*(1/obj.model.length_back)*w2(1);
+
+                    v1(1) = v2(1);
+
+                    for index = 2:length(obj.t)
+
+                        obj.x_out(1, index) = obj.x_out(1, index-1) + v1(index-1) * cos(obj.x_out(3, index-1)) * obj.dt;
+
+                        obj.x_out(2, index) = obj.x_out(2, index-1) + v1(index-1) * sin(obj.x_out(3, index-1)) * obj.dt;
+
+                        obj.x_out(3, index) = obj.x_out(3, index-1) + w1(index-1) * obj.dt;
+
+                        gamma = obj.x_out(6, index) - obj.x_out(3, index);
+
+                        w1(index) = (-1/obj.model.length_back) * ( v2(index)*sin(gamma) + obj.model.length_front * w2(index) * cos(gamma));
+                        
+                        v1(index) = v2(index)*cos(gamma) - obj.model.length_front*w2(index)*sin(gamma);
+                    end
+
+                    obj.x = obj.x_out;
+
+                    v_r = obj.model.distance * w1 + v1;
+                    v_l = -obj.model.distance * w1 + v1;
+
+                    obj.u = [v_r; v_l];
+
+                    obj.u_norm = [v1;w1];
+
+                    obj.u_norm_back = [v1;w1;v2;w2;obj.x_out(6, :)-obj.x_out(3, :)];
+
+                elseif obj.ref_vehicle == "tractor"
+    
+                    dthetadt = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
+
+                    v_r = obj.model.distance * dthetadt + sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
+                    v_l = -obj.model.distance * dthetadt + sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
+                    
+                    obj.u = [v_r; v_l];
+
+                    obj.x_out(:, 1) = [0;0;0;-(obj.model.length_back + obj.model.length_front);0;0];
+
+                    for index=1:length(obj.t)-1
+
+                        xM = obj.model.Function(obj.x_out(:, index), obj.u(:,index), obj.dt, obj.model.p_without_slip);
+                        
+                        obj.x_out(:, index+1) = xM;
+                    end
+
+                    obj.x = obj.x_out;
+
+                    obj.u_norm = [dthetadt; sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2)];
                 end
-
-                obj.x = obj.x_out;
-
-                v_r = obj.model.distance * w1 + v1;
-                v_l = -obj.model.distance * w1 + v1;
-
-                obj.u = [v_r; v_l];
-
-                obj.u_norm = [v1;w1];
-
-                obj.u_norm_back = [v1;w1;v2;w2;obj.x_out(6, :)-obj.x_out(3, :)];
-            else
-                dthetadt = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
-
-                v_r = obj.model.distance * dthetadt + sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
-                v_l = -obj.model.distance * dthetadt + sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);
-                   
-                obj.u = [v_r; v_l];
-
-                obj.x_out(:, 1) = [0;0;0;-(obj.model.length_back + obj.model.length_front);0;0];
-
-                for index=1:length(obj.t)-1
-
-                     xM = obj.model.Function(obj.x_out(:, index), obj.u(:,index), obj.dt, obj.model.p_without_slip);
-                       
-                     obj.x_out(:, index+1) = xM;
-                end
-
-                obj.x = obj.x_out;
-
-                obj.u_norm = [dthetadt; sqrt(obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2)];
             end
         end 
         
