@@ -5,24 +5,24 @@ classdef Mdl_TwoTrailersCLASS
     properties
 
         % Model's specifications
-        d = 0.48;
+        distance = 0.48;
 
-        Lt1 = 0.2;
+        Lt1 = 0.25;
 
-        L2 = 0.3;
+        L2 = 0.25;
 
-        Lt2 = 0.2;
+        Lt2 = 0.25;
 
-        L3 = 0.3;
+        L3 = 0.25;
 
         % Slip parameters
-        s_r = 0.0;
+        slip_right = 0.0;
 
-        s_l = 0.0;
+        slip_left = 0.0;
         % Generated MATLAB parameters
-        p_slip;
+        p;
 
-        p_no_slip;
+        p_without_slip;
 
         % Number of states
         nx;
@@ -40,9 +40,9 @@ classdef Mdl_TwoTrailersCLASS
 
             obj.nu = 2;
 
-            obj.p_no_slip = [obj.d, obj.Lt1, obj.L2, obj.Lt2, obj.L3, 0, 0];
+            obj.p_without_slip = [obj.distance, obj.Lt1, obj.L2, obj.Lt2, obj.L3, 0, 0];
 
-            obj.p_slip = [obj.d, obj.Lt1, obj.L2, obj.Lt2, obj.L3, obj.s_r, obj.s_l];
+            obj.p = [obj.distance, obj.Lt1, obj.L2, obj.Lt2, obj.L3, obj.slip_right, obj.slip_left];
 
         end
         

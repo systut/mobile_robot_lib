@@ -1,9 +1,9 @@
 function SymbolicComputationOfEoM()
 %SYMBOLICCOMPUTATIONOFEOM Summary of this function goes here
 %   Detailed explanation goes here
-    syms d Lt1 L2 Lt2 L3 s_r s_l dt
+    syms distance Lt1 L2 Lt2 L3 slip_right slip_left dt
 
-    p = [d, Lt1, L2, Lt2, L3, s_r, s_l];
+    p = [distance, Lt1, L2, Lt2, L3, slip_right, slip_left];
 
     nx = 9;
 
@@ -23,9 +23,9 @@ function SymbolicComputationOfEoM()
 
     %% Motion model
 
-    v = (u(1) + u(2))/2;
+    v = ((1 - slip_right) * u(1) + (1 - slip_left) * u(2))/2;
 
-    w = (u(1) - u(2))/d;
+    w = ((1 - slip_right) * u(1) - (1 - slip_left) * u(2))/(2*distance);
 
     theta_12 = x(3) - x(6);
 
