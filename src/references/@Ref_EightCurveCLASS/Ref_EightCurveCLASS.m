@@ -53,7 +53,9 @@ classdef Ref_EightCurveCLASS
             w = (2*pi) / obj.tMAX;
             
             % Lemniscate of gerono, adapted so that one period takes 60s
-            obj.x = [obj.R * sin(2*w*obj.t) / 2; obj.R * (cos(w*obj.t)-1); atan2(-obj.R * w * sin(w*obj.t), obj.R * w * cos(2*w*obj.t))];
+            obj.x = [obj.R * sin(2*w*obj.t) / 2; 
+                     obj.R * (cos(w*obj.t)-1); 
+                     atan2(-obj.R * w * sin(w*obj.t), obj.R * w * cos(2*w*obj.t))];
         
             % First derivative of adapted lemniscate of gerono
             obj.dxdt = [obj.R * w * cos(2*w*obj.t); -obj.R * w * sin(w*obj.t)];
@@ -119,6 +121,9 @@ classdef Ref_EightCurveCLASS
                 obj.u = [v_r; v_l];
 
                 obj.u_norm = [v1;w1];
+
+            elseif isa(obj.model, 'Mdl_TwoTrailersCLASS')
+
 
             else
                 dthetadt = (obj.ddxddt(2, :) .* obj.dxdt(1, :) - obj.ddxddt(1, :) .* obj.dxdt(2, :)) ./ (obj.dxdt(1, :).^2 + obj.dxdt(2, :).^2);

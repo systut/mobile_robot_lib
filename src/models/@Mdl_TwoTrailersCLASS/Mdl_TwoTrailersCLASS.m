@@ -9,11 +9,11 @@ classdef Mdl_TwoTrailersCLASS
 
         Lt1 = 0.25;
 
-        L2 = 0.25;
+        L2 = 0.75;
 
         Lt2 = 0.25;
 
-        L3 = 0.25;
+        L3 = 0.75;
 
         % Slip parameters
         slip_right = 0.0;
